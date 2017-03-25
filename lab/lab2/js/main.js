@@ -123,6 +123,10 @@ var state = {
   }
 };
 
+
+var data= $.ajax('https://matrix.mapzen.com/optimized_route?json={"locations":[{"lat":39.950171,"lon":-75.193675},{"lat":39.955866,"lon":-75.191535}],"costing":"auto","directions_options":{"units":"miles"}}&api_key=mapzen-fXK4VkV'
+)
+
 /* We'll use underscore's `once` function to make sure this only happens
  *  one time even if weupdate the position later
  */
@@ -172,4 +176,30 @@ $(document).ready(function() {
 
 });
 
+data.done(function(n){
+  var Arra =decode("wmkekAhnmlnC}Ehv@uEnr@cK~eBeApQwMdmB_@pGmD]om@qHquAcQyB]uD]aD_@uh@qG{UgD_O{AqB]oD]gDm@oh@qGcUyCoNyAsB_@{Em@\\aGViCfCia@rA}TpBuZrAqRNyAt@{LlE{t@z@{KvCgb@F]VyC?m@F{@TgDhCib@TuDpHyjAnCud@")
+  console.log (Arra)
+  var Arrayflip=[];
 
+  // var plotMarkers=function(marker) {
+  // _.each(marker, function(n) {
+  //   n.addTo(map)
+  // });
+  var flip= function(main){
+    _.each(main, function(n){
+    Arrayflip.push(n.reverse())
+    })
+
+  }
+  flip(Arra)
+  console.log(Arrayflip)
+
+  var line= turf.lineString(Arrayflip)
+
+  L.geoJSON(line, {
+    style: function (feature) {
+        return {color: "blue"};
+     }
+   }).addTo(map);
+
+})

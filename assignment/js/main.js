@@ -80,6 +80,9 @@ var Stamen_TonerLite = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{
 Leaflet Draw configuration
 ---------------- */
 
+var myMarker = [];
+var demoShapes= [];
+
 var drawControl = new L.Control.Draw({
   draw: {
     polyline: false,
@@ -123,6 +126,41 @@ map.on('draw:created', function (e) {
   var type = e.layerType; // The type of shape
   var layer = e.layer; // The Leaflet layer for the shape
   var id = L.stamp(layer); // The unique Leaflet ID for the
-
   console.log('Do something with the layer you just created', layer, layer._latlng);
+
+  if (state.count===0) {
+     state.marker1 = layer.addTo(map);
+     state.count += 1
+   } else if (state.count===1) {
+     state.marker2 = layer.addTo(map);
+
+   var routing = {
+     "locations":[{"lat":state.marker1._latlng.lat,"lon":state.marker1._latlng.lng},
+     {"lat":state.marker2._latlng.lat,"lon":state.marker2._latlng.lng}],
+     "costing":"auto", "directions_options":{"units":"miles"}};
+   var routeString = JSON.stringify(routing);
+   var route = "https://matrix.mapzen.com/optimized_route?json=" + routeString + "&api_key=mapzen-fXK4VkV";
+
+   $.ajax(route).done(function(data){
+     var decoderoute = decode(data.trip.legs[0].shape);
+     console.log(decoderoute);
+     var decodeflip=[];
+     var flip = function(main){
+       _.each(main, function(n){
+       decodeflip.push(n.reverse())
+       })
+     }
+     flip(decoderoute)
+     console.log(decodeflip)
+     var route=turf.lineString(decodeflip)
+//Plot route
+    var FinalRoute = L.geoJSON(route, {color: 'blue'});
+    state.line = FinalRoute.addTo(map);
+    console.log(state.line);
+    });
+
+  $('#button-reset').show();
+  $('.leaflet-draw').hide();
+  }
+
 });
